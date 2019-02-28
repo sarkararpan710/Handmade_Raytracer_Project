@@ -5,7 +5,7 @@
 #include<fstream>
 #include "ray.h"
 
-internal u32 GetTotalPixelSize(image_32 Image)
+internal u32 GetTotalPixelSize(image_32 Image)//take image_32 Image
 {
 	u32 Result = Image.Width*Image.Height * sizeof(u32);
 	return(Result);
@@ -94,5 +94,24 @@ int main(int ArgCount, char **Args)
 	}
 
 	WriteImage(Image, "test.bmp");//sets the allocated image to a bitmap file.
+	
+
+	//return material 0 to ray trace a color when the 
+	//ray tracer hits nothing
+	material Materials[2] = {};
+	Materials[0].Color = v3(0, 0, 0);
+	Materials[1].Color = v3(1, 0, 0);
+
+	plane Plane = {};
+	Plane.MatIndex = 1;
+
+	world World = {};
+	World.MaterialCount = 2;
+	World.Materials = Materials;
+	World.planeCount = 1;
+	World.planes = &Plane;
+	World.sphereCount = 0;
+	World.spheres = 0;
+
 	return(0);
 }
