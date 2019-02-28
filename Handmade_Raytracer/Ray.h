@@ -1,3 +1,5 @@
+
+#include "ray_math.h"
 #define internal static //can make the compile time slow down.
 
 typedef uint8_t u8;
@@ -9,8 +11,14 @@ typedef int8_t s8;
 typedef int16_t s16;
 typedef int32_t s32;
 typedef int64_t s64;
+typedef float f32;
+
+#define F32Max FLT_MAX
+#define F32Min -FLT_MAX
+
 
 #pragma pack(push, 1)
+
 
 //structure of the bitmap header to set up the ray tracer images to be rendered here
 struct bitmap_header
@@ -48,7 +56,7 @@ struct image_32//RGBA image
 
 struct material
 {
-	//v3 color;
+	//v3 color;//v3 cause this is an RGB
 };
 
 struct plane
