@@ -1,3 +1,4 @@
+#include<math.h>
 typedef float f32;
 
 union v2
@@ -118,6 +119,76 @@ V3(f32 X, f32 Y, f32 Z)
 	Result.x = X;
 	Result.y = Y;
 	Result.z = Z;
+}
+
+//operator overloading for v2 operations in C style structs
+inline v2 operator*(f32 A, v2 B)
+{
+	v2 Result;
+	Result.x = A * B.x;
+	Result.y = A * B.y;
+	return Result;
+}
+
+inline v2 operator+(f32 A, v2 B)
+{
+	v2 Result;
+	Result.x = A * B.x;
+	Result.y = A * B.y;
+	return Result;
+}
+
+
+inline v3 operator*(f32 A, v3 B)
+{
+	v3 Result;
+	Result.x = A * B.x;
+	Result.y = A * B.y;
+	Result.z = A * B.z;
+	return Result;
+}
+
+inline v3 operator*(v3 B, f32 A)
+{
+	v3 Result;
+	Result.x = B.x * A;
+	Result.y = B.y * A;
+	Result.z = B.z * A;
+}
+
+
+inline f32 LengthSq(v3 A)
+{
+	f32 Result;
+	Result = A.x*A.x + A.y*A.y + A.z*A.z;
+	return Result;
+}
+
+inline v3
+Normalize(v3 A)
+{
+	v3 Result;
+	Result = A * (1.0f / (A.x*A.x + A.y*A.y + A.z*A.z));
+	return Result;
+}
+
+inline f32
+Square(f32 A)
+{
+	f32 Result = A * A;
+	return Result;
+}
+
+inline v3
+NOZ(v3 A)
+{
+	v3 Result = {};
+	f32 LenSq = LengthSq(A);
+	if (LenSq > Square(0.0001f))
+	{
+		Result = A * (1.0f / sqrt(LenSq));
+	}
+	return Result;
 }
 
 

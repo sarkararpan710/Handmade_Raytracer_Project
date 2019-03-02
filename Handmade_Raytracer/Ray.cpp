@@ -118,5 +118,10 @@ int main(int ArgCount, char **Args)
 	World.sphereCount = 0;
 	World.spheres = 0;
 
+
+	//SETTING THE CAMERA POSITIONS AND RAY POINTS TO SHOOT RAYS FROM
+	v3 CameraPos = V3(0,10,10);
+	v3 CameraRay = NOZ(CameraPos);
+
 	return(0);
 }
