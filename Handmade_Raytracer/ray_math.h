@@ -102,3 +102,22 @@ union v4
 	f32 E[4];
 };
 
+
+inline v2
+V2(f32 X, f32 Y)
+{
+	v2 Result;
+	Result.x = X;
+	Result.y = Y;
+}
+
+inline v3
+V3(f32 X, f32 Y, f32 Z)
+{
+	v3 Result;
+	Result.x = X;
+	Result.y = Y;
+	Result.z = Z;
+}
+
+

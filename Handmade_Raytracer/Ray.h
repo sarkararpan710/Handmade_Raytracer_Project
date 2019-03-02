@@ -15,6 +15,8 @@ typedef float f32;
 
 #define F32Max FLT_MAX
 #define F32Min -FLT_MAX
+#define Pi32 3.14159265359f
+#define Tau32 6.28318530717958647692f
 
 
 #pragma pack(push, 1)
@@ -56,20 +58,20 @@ struct image_32//RGBA image
 
 struct material
 {
-	//v3 color;//v3 cause this is an RGB
+	v3 color;//v3 cause this is an RGB
 };
 
 struct plane
 {
-	//v3 N;
-	//f32 d;
+	v3 N;
+	f32 d;
 	u32 MatIndex;
 };
 
 struct sphere
 {
-	//v3 P;
-	//f32 r;
+	v3 P;
+	f32 r;
 	u32 MatIndex;
 };
 

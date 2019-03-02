@@ -99,10 +99,15 @@ int main(int ArgCount, char **Args)
 	//return material 0 to ray trace a color when the 
 	//ray tracer hits nothing
 	material Materials[2] = {};
-	Materials[0].Color = v3(0, 0, 0);
-	Materials[1].Color = v3(1, 0, 0);
+	Materials[0].color = V3(0, 0, 0);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
+	Materials[1].color = V3(1, 0, 0);
 
+
+	//definin the plane for ray tracing the plane.
+	//the plane here is pointing up towards z axis
 	plane Plane = {};
+	Plane.N = V3(0,0,1);
+	Plane.d = 0;
 	Plane.MatIndex = 1;
 
 	world World = {};
