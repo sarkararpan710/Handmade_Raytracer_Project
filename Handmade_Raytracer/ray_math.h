@@ -157,18 +157,20 @@ inline v3 operator*(v3 B, f32 A)
 }
 
 
+//modularized this function to use square.
 inline f32 LengthSq(v3 A)
 {
 	f32 Result;
-	Result = A.x*A.x + A.y*A.y + A.z*A.z;
+	Result = Square(A.x) + Square(A.y) + Square(A.z);
 	return Result;
 }
 
+//modularized this function to use LengthSq
 inline v3
 Normalize(v3 A)
 {
 	v3 Result;
-	Result = A * (1.0f / (A.x*A.x + A.y*A.y + A.z*A.z));
+	Result = A * (1.0f / LengthSq(A));
 	return Result;
 }
 
@@ -189,6 +191,15 @@ NOZ(v3 A)
 		Result = A * (1.0f / sqrt(LenSq));
 	}
 	return Result;
+}
+
+inline v3
+Cross(v3 A, v3 B)
+{
+	v3 Result;
+	Result.x = A.y*B.z - A.z*B.y;
+	Result.y = A.z*B.x - A.x*B.z;
+	Result.z = A.x*B.y - A.y*B.x;
 }
 
 

@@ -74,39 +74,16 @@ internal void WriteImage(image_32 Image, const char* OutputFileName)
 
 int main(int ArgCount, char **Args)
 {
-	u32 OutputWidth = 1280;
-	u32 OutputHeight = 720;
-	//creating the image and allocating it
-	image_32 Image = AllocateImage(1280, 720);
-	u32 *Out = Image.Pixels;
-
-	/* this part of the code does the allocation of the image
-	u32 OutputPixelSize = sizeof(u32)*OutputHeight*OutputWidth;
-	u32 *OutputPixels = (u32*)malloc(OutputPixelSize);
-	u32 *Out = OutputPixels;
-	*/
-	for (u32 y = 0; y < Image.Height; ++y)
-	{
-		for (u32 x = 0; x < Image.Width; ++x)
-		{
-			*Out++ = (y < 32) ? 0xFFFF0000 : 0xFF0000FF;//BITMAP FILES BY DEFAULT START FROM THE BOTTOM ROW and iterating those pixels denoted by *Out.
-		}
-	}
-
-	WriteImage(Image, "test.bmp");//sets the allocated image to a bitmap file.
-	
-
 	//return material 0 to ray trace a color when the 
 	//ray tracer hits nothing
 	material Materials[2] = {};
 	Materials[0].color = V3(0, 0, 0);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
 	Materials[1].color = V3(1, 0, 0);
 
-
 	//definin the plane for ray tracing the plane.
 	//the plane here is pointing up towards z axis
 	plane Plane = {};
-	Plane.N = V3(0,0,1);
+	Plane.N = V3(0, 0, 1);
 	Plane.d = 0;
 	Plane.MatIndex = 1;
 
@@ -119,9 +96,49 @@ int main(int ArgCount, char **Args)
 	World.spheres = 0;
 
 
+	
+
+	u32 OutputWidth = 1280;
+	u32 OutputHeight = 720;
+	//creating the image and allocating it
+	image_32 Image = AllocateImage(1280, 720);
+
+
+
+
 	//SETTING THE CAMERA POSITIONS AND RAY POINTS TO SHOOT RAYS FROM
-	v3 CameraPos = V3(0,10,10);
-	v3 CameraRay = NOZ(CameraPos);
+	v3 CameraPos = V3(0, 10, 1);
+	v3 CameraZ = NOZ(CameraPos);
+	v3 CameraX = NOZ(Cross(CameraZ, V3(0, 0, 1)));
+	v3 CameraY = NOZ(Cross(CameraZ, CameraX));
+
+
+	u32 *Out = Image.Pixels;
+
+
+	//setting the ray tracer for camera positions and ray tracing 
+	//on the plane
+	for (u32 y = 0; y < Image.Height; ++y)
+	{
+		f32 FilmY = -1.0f + 2.0f*((f32)y / (f32)Image.Height);
+		for (u32 x = 0; x < Image.Width; ++x)
+		{
+			f32 FilmX = -1.0f + 2.0f*((f32)x / (f32)Image.Height);
+			*Out++ = (y < 32) ? 0xFFFF0000 : 0xFF0000FF;//BITMAP FILES BY DEFAULT START FROM THE BOTTOM ROW and iterating those pixels denoted by *Out.
+		}
+	}
+
+	WriteImage(Image, "test.bmp");//sets the allocated image to a bitmap file.
+	
+
+	
+
+
+	
+
+	
+
+
 
 	return(0);
 }
