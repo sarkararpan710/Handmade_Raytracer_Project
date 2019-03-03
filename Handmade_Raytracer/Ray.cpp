@@ -72,6 +72,13 @@ internal void WriteImage(image_32 Image, const char* OutputFileName)
 	}
 }
 
+internal v3
+RayCast(world *World, v3 RayOrigin, v3 RayDirection)
+{
+	v3 Result = {};//this should get packed properly
+	return Result;
+}
+
 int main(int ArgCount, char **Args)
 {
 	//return material 0 to ray trace a color when the 
@@ -113,6 +120,14 @@ int main(int ArgCount, char **Args)
 	v3 CameraY = NOZ(Cross(CameraZ, CameraX));
 
 
+	f32 FilmDist = 1.0f;
+	f32 FilmWidth = 1.0f;
+	f32 FilmHeight = 1.0f;
+	f32 HalfFilmWidth = 0.5*FilmWidth;
+	f32 HalfFilmHeight = 0.5*FilmHeight;
+	v3 FilmCenter = CameraPos - (FilmDist*CameraZ);
+	
+
 	u32 *Out = Image.Pixels;
 
 
@@ -124,21 +139,24 @@ int main(int ArgCount, char **Args)
 		for (u32 x = 0; x < Image.Width; ++x)
 		{
 			f32 FilmX = -1.0f + 2.0f*((f32)x / (f32)Image.Height);
-			*Out++ = (y < 32) ? 0xFFFF0000 : 0xFF0000FF;//BITMAP FILES BY DEFAULT START FROM THE BOTTOM ROW and iterating those pixels denoted by *Out.
+			
+			v3 FilmPos = FilmCenter + (FilmX * HalfFilmWidth*CameraX + FilmY * HalfFilmHeight*CameraY);
+			//shoot the rays now
+			v3 RayOrigin = CameraPos;//rays start at the camera location
+			v3 RayDirection = NOZ(FilmPos - CameraPos);
+			
+			v3 Color = RayCast(&World, RayOrigin, RayDirection);
+			//also need to pack the color we receive back. Color comeback
+			//so we have to convert the color back.
+			v4 BMPColor = V4(255.0f*Color, 255.0f);//Passing RGBA values to the BMPColor
+			u32 BMPValue = RGBAPack4x8(BMPColor);//Getting BMP values after packing them into RGBA
+
+			
+			*Out++ = BMPValue; //Previously it was a default image value now. We are now passing the actual BITMAP COLOR VALUES
 		}
 	}
 
-	WriteImage(Image, "test.bmp");//sets the allocated image to a bitmap file.
+	WriteImage(Image, "test.bmp");//getting the raytraced image plane on test.bmp.
 	
-
-	
-
-
-	
-
-	
-
-
-
 	return(0);
 }

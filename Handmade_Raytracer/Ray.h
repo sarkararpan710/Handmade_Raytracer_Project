@@ -1,5 +1,5 @@
 
-#include "ray_math.h"
+
 #define internal static //can make the compile time slow down.
 
 typedef uint8_t u8;
@@ -17,7 +17,7 @@ typedef float f32;
 #define F32Min -FLT_MAX
 #define Pi32 3.14159265359f
 #define Tau32 6.28318530717958647692f
-
+#include "ray_math.h"
 
 #pragma pack(push, 1)
 
