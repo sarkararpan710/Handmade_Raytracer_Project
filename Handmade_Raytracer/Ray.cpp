@@ -3,6 +3,7 @@
 #include<stdint.h>
 #include<cstdlib>
 #include<fstream>
+#include<float.h>
 #include "ray.h"
 
 internal u32 GetTotalPixelSize(image_32 Image)//take image_32 Image
@@ -75,12 +76,42 @@ internal void WriteImage(image_32 Image, const char* OutputFileName)
 internal v3
 RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 {
-	v3 Result = {};//this should get packed properly
+	//setting the material if the ray hits nothing
+	v3 Result = World->Materials[0].color;//this should get packed properly
+										  //starting to implement the raycast algorithm for ray plane intersection
+	f32 hitdistance = F32Max;
+
+	//This function implements the minimum distance between the ray's first hit and the plane
+	for (u32 PlaneIndex = 0; PlaneIndex<World->planeCount; ++PlaneIndex)
+	{
+
+		f32 tolerance = 0.00001f;
+
+
+		//loop through all the planes in the world
+		plane Plane = World->planes[PlaneIndex];
+		f32 denom = Inner(Plane.N, RayDirection);
+		if ((denom < -tolerance) >(denom > tolerance))
+		{
+			f32 thisDistance = (-Plane.d - Inner(Plane.N, RayOrigin)) / denom;
+			if (thisDistance > 0 && thisDistance<hitdistance)
+			{
+				thisDistance = hitdistance;
+				//after checking for the closest Ray plane intersection, set the material of the hit
+				//plane as red
+				Result = World->Materials[1].color;
+
+			}
+		}
+
+	}
+
 	return Result;
 }
 
 int main(int ArgCount, char **Args)
 {
+	printf("Raycasting... ");
 	//return material 0 to ray trace a color when the 
 	//ray tracer hits nothing
 	material Materials[2] = {};
@@ -116,7 +147,7 @@ int main(int ArgCount, char **Args)
 	//SETTING THE CAMERA POSITIONS AND RAY POINTS TO SHOOT RAYS FROM
 	v3 CameraPos = V3(0, 10, 1);
 	v3 CameraZ = NOZ(CameraPos);
-	v3 CameraX = NOZ(Cross(CameraZ, V3(0, 0, 1)));
+	v3 CameraX = NOZ(Cross(V3(0, 0, 1), CameraZ));//Changed the cross product the orientation of the bitmap changed because of this.
 	v3 CameraY = NOZ(Cross(CameraZ, CameraX));
 
 
@@ -127,7 +158,7 @@ int main(int ArgCount, char **Args)
 	f32 HalfFilmHeight = 0.5*FilmHeight;
 	v3 FilmCenter = CameraPos - (FilmDist*CameraZ);
 	
-
+	
 	u32 *Out = Image.Pixels;
 
 
@@ -149,7 +180,9 @@ int main(int ArgCount, char **Args)
 			//also need to pack the color we receive back. Color comeback
 			//so we have to convert the color back.
 			v4 BMPColor = V4(255.0f*Color, 255.0f);//Passing RGBA values to the BMPColor
-			u32 BMPValue = RGBAPack4x8(BMPColor);//Getting BMP values after packing them into RGBA
+			u32 BMPValue = BGRAPack4x8(BMPColor);//Getting BMP values after packing them into RGBA
+												 //Bitmap values were opposite because of Endianess.
+												//So I changed them to BGRApack because of this.
 
 			
 			*Out++ = BMPValue; //Previously it was a default image value now. We are now passing the actual BITMAP COLOR VALUES
@@ -158,5 +191,7 @@ int main(int ArgCount, char **Args)
 
 	WriteImage(Image, "test.bmp");//getting the raytraced image plane on test.bmp.
 	
+	printf("Done.....\n");
+
 	return(0);
 }
