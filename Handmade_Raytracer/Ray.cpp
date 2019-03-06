@@ -80,13 +80,11 @@ RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 	v3 Result = World->Materials[0].color;//this should get packed properly
 										  //starting to implement the raycast algorithm for ray plane intersection
 	f32 hitdistance = F32Max;
+	f32 tolerance = 0.00001f; //putting it outside the for loop because of variable scope
 
 	//This function implements the minimum distance between the ray's first hit and the plane
 	for (u32 PlaneIndex = 0; PlaneIndex<World->planeCount; ++PlaneIndex)
 	{
-
-		f32 tolerance = 0.00001f;
-
 
 		//loop through all the planes in the world
 		plane Plane = World->planes[PlaneIndex];
@@ -106,17 +104,60 @@ RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 
 	}
 
+
+
+	//This loop performs ray casting for all the spheres in the World.
+	for (u32 SphereIndex = 0; SphereIndex<World->sphereCount; ++SphereIndex)
+	{
+
+		//loop through all the spheres in the world
+		sphere Sphere = World->spheres[SphereIndex];
+		
+		f32 a = Inner(RayDirection,RayDirection);//getting the values for our Ray sphere intersection
+		f32 b = 2*Inner(RayDirection, RayOrigin);
+		f32 c = Inner(RayOrigin, RayOrigin) - (Sphere.r*Sphere.r);
+		
+		
+		f32 denom = 2*a;//parts of our quadratic eqn solution for the ray sphere intersection math.
+		f32 RootTerm = sqrt((b*b) - (4 *(a*c)));
+
+		if (RootTerm > tolerance)//doing a check with tolerance values to check for exceptions when either the root term is negative or when denom is 0.
+		{
+			f32 tp = (-b + RootTerm) / denom;
+			f32 tn = (-b - RootTerm) / denom;
+
+			f32 thisDistance = tp;
+			if ((tn > 0) && (tn < tp))
+			{
+				thisDistance = tn;
+			}
+
+			if ((thisDistance > 0) && (thisDistance < hitdistance))
+			{
+				hitdistance = thisDistance;
+				Result = World->Materials[2].color;
+			}
+		}
+
+		}
 	return Result;
-}
+
+	}
+
+
+	
+
 
 int main(int ArgCount, char **Args)
 {
 	printf("Raycasting... ");
 	//return material 0 to ray trace a color when the 
 	//ray tracer hits nothing
-	material Materials[2] = {};
-	Materials[0].color = V3(0, 0, 0);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
-	Materials[1].color = V3(1, 0, 0);
+	material Materials[3] = {};
+	Materials[0].color = V3(0.5f, 0.5f, 0.5f);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
+	Materials[1].color = V3(1, 0, 0);//The Plane is Red color
+	Materials[2].color = V3(0, 1, 0);//The Sphere is Green color
+	
 
 	//definin the plane for ray tracing the plane.
 	//the plane here is pointing up towards z axis
@@ -125,13 +166,23 @@ int main(int ArgCount, char **Args)
 	Plane.d = 0;
 	Plane.MatIndex = 1;
 
+
+	//defining the sphere for ray tracing the sphere.
+	sphere Sphere = {};
+	Sphere.P = V3(2,0,1);
+	Sphere.r = 1.0f;
+	Sphere.MatIndex = 2;
+
+
+
+
 	world World = {};
-	World.MaterialCount = 2;
+	World.MaterialCount = 4;
 	World.Materials = Materials;
 	World.planeCount = 1;
 	World.planes = &Plane;
-	World.sphereCount = 0;
-	World.spheres = 0;
+	World.sphereCount = 2;
+	World.spheres = &Sphere;
 
 
 	
