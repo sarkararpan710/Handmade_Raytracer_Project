@@ -113,9 +113,10 @@ RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 		//loop through all the spheres in the world
 		sphere Sphere = World->spheres[SphereIndex];
 		
+		v3 SphereRelativeRayOrigin = RayOrigin - Sphere.P;
 		f32 a = Inner(RayDirection,RayDirection);//getting the values for our Ray sphere intersection
-		f32 b = 2*Inner(RayDirection, RayOrigin);
-		f32 c = Inner(RayOrigin, RayOrigin) - (Sphere.r*Sphere.r);
+		f32 b = 2*Inner(RayDirection, SphereRelativeRayOrigin);
+		f32 c = Inner(SphereRelativeRayOrigin, SphereRelativeRayOrigin) - (Sphere.r*Sphere.r);
 		
 		
 		f32 denom = 2*a;//parts of our quadratic eqn solution for the ray sphere intersection math.
@@ -154,9 +155,9 @@ int main(int ArgCount, char **Args)
 	//return material 0 to ray trace a color when the 
 	//ray tracer hits nothing
 	material Materials[3] = {};
-	Materials[0].color = V3(0.5f, 0.5f, 0.5f);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
-	Materials[1].color = V3(1, 0, 0);//The Plane is Red color
-	Materials[2].color = V3(0, 1, 0);//The Sphere is Green color
+	Materials[0].color = V3(0.3f, 0.3f, 0.3f);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
+	Materials[1].color = V3(0.5, 0.5, 0.5);//The Plane is Red color
+	Materials[2].color = V3(0.7f, 0.5f, 0.3f);//The Sphere is Green color
 	
 
 	//definin the plane for ray tracing the plane.
@@ -187,8 +188,7 @@ int main(int ArgCount, char **Args)
 
 	
 
-	u32 OutputWidth = 1280;
-	u32 OutputHeight = 720;
+	
 	//creating the image and allocating it
 	image_32 Image = AllocateImage(1280, 720);
 
@@ -205,6 +205,17 @@ int main(int ArgCount, char **Args)
 	f32 FilmDist = 1.0f;
 	f32 FilmWidth = 1.0f;
 	f32 FilmHeight = 1.0f;
+	//Implementing Aspect Ratio to address the problem of ray casting in a specific square plane and
+	//adjust the height and width ration accordingly.
+	if (Image.Width > Image.Height)
+	{
+		FilmHeight = FilmWidth * ((f32)Image.Height / (f32)Image.Width);
+	}
+	else if (Image.Height > Image.Width)
+	{
+		FilmWidth = FilmHeight * ((f32)Image.Width / (f32)Image.Height);
+	}
+
 	f32 HalfFilmWidth = 0.5*FilmWidth;
 	f32 HalfFilmHeight = 0.5*FilmHeight;
 	v3 FilmCenter = CameraPos - (FilmDist*CameraZ);
@@ -220,7 +231,7 @@ int main(int ArgCount, char **Args)
 		f32 FilmY = -1.0f + 2.0f*((f32)y / (f32)Image.Height);
 		for (u32 x = 0; x < Image.Width; ++x)
 		{
-			f32 FilmX = -1.0f + 2.0f*((f32)x / (f32)Image.Height);
+			f32 FilmX = -1.0f + 2.0f*((f32)x / (f32)Image.Width);
 			
 			v3 FilmPos = FilmCenter + (FilmX * HalfFilmWidth*CameraX + FilmY * HalfFilmHeight*CameraY);
 			//shoot the rays now
@@ -238,11 +249,17 @@ int main(int ArgCount, char **Args)
 			
 			*Out++ = BMPValue; //Previously it was a default image value now. We are now passing the actual BITMAP COLOR VALUES
 		}
+		if((y%64) ==0)
+		{
+			printf("\rRaycasting row %d%%....",100*y / Image.Height);
+			fflush(stdout);
+		}
+		
 	}
 
 	WriteImage(Image, "test.bmp");//getting the raytraced image plane on test.bmp.
 	
-	printf("Done.....\n");
+	printf("\nDone.....\n");
 
 	return(0);
 }
