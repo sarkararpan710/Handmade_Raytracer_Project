@@ -26,6 +26,9 @@
 *.lib
 
 # Executables
+<<<<<<< HEAD
 *.out
+=======
+>>>>>>> 95aac1c3a77c4f356541550a426beb3abd19c09f
 *.app
 
