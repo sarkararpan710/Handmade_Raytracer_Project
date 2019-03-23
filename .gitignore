@@ -32,4 +32,4 @@
 *.app
 
 #Visual Studio Solution file
-.sln
+*.sln
