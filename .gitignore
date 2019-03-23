@@ -5,7 +5,6 @@
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -27,8 +26,6 @@
 *.lib
 
 # Executables
-*.exe
-*.out
 *.app
 
 #Visual Studio Solution file
