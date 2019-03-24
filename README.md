@@ -5,4 +5,6 @@ Also added a new build system completely replacing the old Visual Studio Solutio
 
 For more information on using this build system take a look at Casey Muratori's Handmade Hero stream.
 
+Please change the shell.bat file in the misc\ directory based on where your VCVARSALL Path is in your machine. The manual build system still uses the Microsoft Visual C++ Compiler so it needs the correct path.
+
 https://guide.handmadehero.org/code/day001/ For setting up the initial Build Stream https://guide.handmadehero.org/code/day016/ For more info on the Visual Studio Compiler Switches.
