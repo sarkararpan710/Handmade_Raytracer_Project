@@ -77,11 +77,25 @@ internal v3
 RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 {
 	//setting the material if the ray hits nothing
-	v3 Result = World->Materials[0].color;//this should get packed properly
+	//this should get packed properly
 										  //starting to implement the raycast algorithm for ray plane intersection
-	f32 hitdistance = F32Max;
+	
+	f32 MinHitDistance = 0.001f;
 	f32 tolerance = 0.00001f; //putting it outside the for loop because of variable scope
 
+	v3 Result = {};
+	v3 Attenuation = V3(1,1,1); //Initial Attenuation factor to be black when
+	//we hit nothing... means no attenuation for the ray
+
+	//Shooting out multiple rays
+	for(u32 RayCount = 0; RayCount<8; ++RayCount)
+	{
+
+	b32 hitSomething = false;
+    f32 hitdistance = F32Max;
+	v3 NextOrigin = {};
+	v3 NextNormal  = {};
+	u32 HitMatIndex = 0; //to have a notion of what color values the ray hits 
 	//This function implements the minimum distance between the ray's first hit and the plane
 	for (u32 PlaneIndex = 0; PlaneIndex<World->planeCount; ++PlaneIndex)
 	{
@@ -92,13 +106,15 @@ RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 		if ((denom < -tolerance) >(denom > tolerance))
 		{
 			f32 thisDistance = (-Plane.d - Inner(Plane.N, RayOrigin)) / denom;
-			if (thisDistance > 0 && thisDistance<hitdistance)
+			if (thisDistance > MinHitDistance && thisDistance<hitdistance)
 			{
-				thisDistance = hitdistance;
+				hitdistance = thisDistance;
+
 				//after checking for the closest Ray plane intersection, set the material of the hit
 				//plane as red
-				Result = World->Materials[1].color;
-
+				HitMatIndex = Plane.MatIndex;
+				NextOrigin = RayOrigin + thisDistance*RayDirection;
+				NextNormal = Plane.N;
 			}
 		}
 
@@ -128,7 +144,7 @@ RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 			f32 tn = (-b - RootTerm) / denom;
 
 			f32 thisDistance = tp;
-			if ((tn > 0) && (tn < tp))
+			if ((tn > MinHitDistance) && (tn < tp))
 			{
 				thisDistance = tn;
 			}
@@ -136,11 +152,41 @@ RayCast(world *World, v3 RayOrigin, v3 RayDirection)
 			if ((thisDistance > 0) && (thisDistance < hitdistance))
 			{
 				hitdistance = thisDistance;
-				Result = World->Materials[2].color;
+				HitMatIndex = Sphere.MatIndex;
+				NextOrigin = RayOrigin + thisDistance*RayDirection;
+				NextNormal = NOZ(NextOrigin - Sphere.P);
+					}
 			}
-		}
 
-		}
+			//If I hit something then I may keep casting over the scene
+			if(HitMatIndex)
+			{
+				//As we hit the objects in the scene we store these attenuation values
+				material Mat = World->Materials[HitMatIndex];
+
+				//For the emission color we propagate the attenuatiion factor 
+				//of the Emission color back to the camera.
+				Result += Hadamard(Attenuation,Mat.EmitColor);
+				Mat.RefColor = Hadamard(Attenuation, Mat.RefColor);
+
+
+				RayOrigin = NextOrigin;
+				RayDirection = NextNormal;
+
+				
+			}
+
+			//Display the color that has we got at the last hit.
+			else
+			{
+				material Mat = World->Materials[HitMatIndex];
+
+				//Here we propagate the attenuation of the null material.
+				Result += Hadamard(Attenuation,Mat.EmitColor);
+				break;
+			}
+			}
+	}
 	return Result;
 
 	}
@@ -155,9 +201,12 @@ int main(int ArgCount, char **Args)
 	//return material 0 to ray trace a color when the 
 	//ray tracer hits nothing
 	material Materials[3] = {};
-	Materials[0].color = V3(0.3f, 0.3f, 0.3f);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
-	Materials[1].color = V3(0.5, 0.5, 0.5);//The Plane is Red color
-	Materials[2].color = V3(0.7f, 0.5f, 0.3f);//The Sphere is Green color
+
+	//Want the sky to emit colo so we are assigning an emit color reference
+	//for the sky.
+	Materials[0].EmitColor = V3(0.3f, 0.4f, 0.5f);//the error for no suitable constructor from int to v3. Solved by defining functions for v2,v3 and v4 in ray_math.h
+	Materials[1].RefColor = V3(0.5, 0.5, 0.5);//The Plane is Red color
+	Materials[2].RefColor = V3(0.7f, 0.5f, 0.3f);//The Sphere is Green color
 	
 
 	//definin the plane for ray tracing the plane.

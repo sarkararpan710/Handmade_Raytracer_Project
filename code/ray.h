@@ -12,6 +12,7 @@ typedef int16_t s16;
 typedef int32_t s32;
 typedef int64_t s64;
 typedef float f32;
+typedef bool b32;
 
 #define F32Max FLT_MAX
 #define F32Min -FLT_MAX
@@ -56,9 +57,13 @@ struct image_32//RGBA image
 	u32 *Pixels;
 };
 
+
+//Will want to add properties for different materials based on whether we emit light or refract light
 struct material
 {
-	v3 color;//v3 cause this is an RGB
+	//v3 color;//v3 cause this is an RGB
+	v3 EmitColor;
+	v3 RefColor;
 };
 
 struct plane
